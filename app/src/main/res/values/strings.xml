@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SBook</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="scan_code">扫码</string>
+    <string name="search">搜索</string>
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+</resources>
