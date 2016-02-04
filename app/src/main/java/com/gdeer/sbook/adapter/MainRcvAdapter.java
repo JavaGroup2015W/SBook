@@ -13,12 +13,12 @@ import java.util.List;
 /**
  * Created by Gdeer on 2016/1/23.
  */
-public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
+public class MainRcvAdapter extends RecyclerView.Adapter<MainRcvAdapter.ViewHolder> {
 
     private List<MainItem> mDataList;
     private ItemClickListener mItemClickListener;
 
-    public MainAdapter(List<MainItem> mDataList) {
+    public MainRcvAdapter(List<MainItem> mDataList) {
         this.mDataList = mDataList;
     }
 

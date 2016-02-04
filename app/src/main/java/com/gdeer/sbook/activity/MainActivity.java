@@ -18,7 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.gdeer.sbook.R;
-import com.gdeer.sbook.adapter.MainAdapter;
+import com.gdeer.sbook.adapter.MainRcvAdapter;
 import com.gdeer.sbook.bean.MainItem;
 
 import java.util.ArrayList;
@@ -27,10 +27,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView mList;
+    private RecyclerView mRcvList;
     private List<MainItem> mDataList = new ArrayList<>();
-    private MainAdapter mAdapter;
-    private SwipeRefreshLayout swipeRefresh;
+    private MainRcvAdapter mRcvAdapter;
+    private SwipeRefreshLayout mSwipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity
 
         setToolbarAndNav();
         setFab();
-        setRvList();
+        setRcv();
         setSwipeRefreshLayout();
     }
 
@@ -64,33 +64,42 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                startActivity(intent);
                 addOnebook();
             }
         });
     }
 
     public void addOnebook() {
-        MainItem item = new MainItem("BookName " + (int) (Math.random() * 100));
+        MainItem item = new MainItem("书名 " + (int) (Math.random() * 100) + "，发布者，价格等");
         mDataList.add(0, item);
-        mAdapter.notifyDataSetChanged();
+        mRcvAdapter.notifyDataSetChanged();
     }
 
-    public void setRvList() {
-        mList = (RecyclerView) findViewById(R.id.list_main);
+    public void setRcv() {
+        mRcvList = (RecyclerView) findViewById(R.id.rcv_main);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
-        mList.setLayoutManager(layoutManager);
+        mRcvList.setLayoutManager(layoutManager);
         for (int i = 0; i < 40; i++) {
-            MainItem item = new MainItem("BookName " + i);
+            MainItem item = new MainItem("书名 " + i + "，发布者，价格等");
             mDataList.add(0, item);
         }
-        mAdapter = new MainAdapter(mDataList);
-        mList.setAdapter(mAdapter);
+        mRcvAdapter = new MainRcvAdapter(mDataList);
+        mRcvAdapter.setItemOnClickListener(new MainRcvAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(MainActivity.this, SellingBookDetail.class);
+                startActivity(intent);
+            }
+        });
+        mRcvList.setAdapter(mRcvAdapter);
     }
 
     public void setSwipeRefreshLayout() {
-        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.refresh);
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.refresh);
+        mSwipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
@@ -98,7 +107,7 @@ public class MainActivity extends AppCompatActivity
                     public void run() {
                         // 停止刷新
                         addOnebook();
-                        swipeRefresh.setRefreshing(false);
+                        mSwipeRefresh.setRefreshing(false);
                     }
                 }, 600);
             }
@@ -139,10 +148,11 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_first_page) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
+        } else if (id == R.id.nav_message) {
+            Intent intent = new Intent(MainActivity.this, MessageActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {

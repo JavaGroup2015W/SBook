@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="3dp"
         android:foreground="?android:attr/selectableItemBackground"
-        app:cardElevation="0dp"
+        app:cardElevation="0.5dp"
         app:cardCornerRadius="5dp"
         app:contentPadding="8dp">
 
