@@ -1,10 +1,13 @@
 package com.gdeer.sbook.activity;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 
@@ -16,7 +19,12 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.gdeer.sbook.R;
+import com.gdeer.sbook.adapter.MainRcvAdapter;
 import com.gdeer.sbook.adapter.SectionsPagerAdapter;
+import com.gdeer.sbook.bean.MainItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -35,6 +43,9 @@ public class SearchActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private Toolbar toolbar;
+    private MainRcvAdapter mRcvAdapter;
+    private RecyclerView mRcvList;
+    private List<MainItem> mDataList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,25 +57,27 @@ public class SearchActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        setRcv();
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+    }
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+    public void setRcv() {
+        mRcvList = (RecyclerView) findViewById(R.id.rcv_search);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
+        mRcvList.setLayoutManager(layoutManager);
+        for (int i = 0; i < 40; i++) {
+            MainItem item = new MainItem("书名 " + i + "，发布者，价格等");
+            mDataList.add(0, item);
+        }
+        mRcvAdapter = new MainRcvAdapter(mDataList);
+        mRcvAdapter.setItemOnClickListener(new MainRcvAdapter.ItemClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(SearchActivity.this, SellingBookDetail.class);
+                startActivity(intent);
             }
         });
+        mRcvList.setAdapter(mRcvAdapter);
     }
 
     @Override

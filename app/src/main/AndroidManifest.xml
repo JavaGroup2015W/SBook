@@ -29,7 +29,8 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".activity.EditActivity">
         </activity>
-        <activity android:name=".activity.SellingBookDetail">
+        <activity android:name=".activity.SellingBookDetail"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity android:name=".activity.ChatActivity">
         </activity>

@@ -26,11 +26,11 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
         // Return a SellingInfoFragment (defined as a static inner class below).
-//        if (position == 1) {
-//            return BookInfoFragment.newInstance(position + 1);
-//        } else {
+       // if (position == 1) {
+         //   return BookInfoFragment.newInstance(position + 1);
+        //} else {
             return SellingInfoFragment.newInstance(position + 1);
-//        }
+        //}
     }
 
     @Override
