@@ -14,14 +14,22 @@ import android.support.v7.widget.Toolbar;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 import com.gdeer.sbook.R;
+import com.gdeer.sbook.Tool.GsonRequest;
 import com.gdeer.sbook.adapter.MainRcvAdapter;
 import com.gdeer.sbook.adapter.SectionsPagerAdapter;
+import com.gdeer.sbook.bean.Book;
 import com.gdeer.sbook.bean.MainItem;
+import com.gdeer.sbook.bean.SearchResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +44,38 @@ public class SearchActivity extends AppCompatActivity {
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+    //private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    //private ViewPager mViewPager;
     private Toolbar toolbar;
     private MainRcvAdapter mRcvAdapter;
     private RecyclerView mRcvList;
-    private List<MainItem> mDataList = new ArrayList<>();
+    private List<Book> mDataList;
+    private RequestQueue mQueue;
+
+
+
+    private GsonRequest<SearchResult> getRequest(String content){
+        GsonRequest<SearchResult> gsonRequest = new GsonRequest<SearchResult>("https://api.douban.com/v2/book/search?q="+content+"&fields=id,title,images,author,publisher,pubdate",SearchResult.class,
+                new Response.Listener<SearchResult>(){
+                    @Override
+                    public void onResponse(SearchResult searchResult){
+                        mDataList = searchResult.getBooks();
+                        Log.e("TAG", mDataList.get(0).getTitle());
+                        setRcv();
+
+                    }
+                },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("TAG", error.getMessage(), error);
+            }
+        });
+        return gsonRequest;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,19 +87,17 @@ public class SearchActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        setRcv();
+        mQueue = Volley.newRequestQueue(this);
+        mRcvList = (RecyclerView) findViewById(R.id.rcv_search);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
+        mRcvList.setLayoutManager(layoutManager);
+        //setRcv();
 
     }
 
     public void setRcv() {
-        mRcvList = (RecyclerView) findViewById(R.id.rcv_search);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
-        mRcvList.setLayoutManager(layoutManager);
-        for (int i = 0; i < 40; i++) {
-            MainItem item = new MainItem("书名 " + i + "，发布者，价格等");
-            mDataList.add(0, item);
-        }
-        mRcvAdapter = new MainRcvAdapter(mDataList);
+
+        mRcvAdapter = new MainRcvAdapter(mDataList,mQueue);
         mRcvAdapter.setItemOnClickListener(new MainRcvAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -92,6 +120,7 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                mQueue.add(getRequest(query));
                 return true;
             }
 

@@ -13,13 +13,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 import com.gdeer.sbook.R;
+import com.gdeer.sbook.Tool.GsonRequest;
 import com.gdeer.sbook.adapter.MainRcvAdapter;
+import com.gdeer.sbook.bean.Book;
 import com.gdeer.sbook.bean.MainItem;
+import com.gdeer.sbook.bean.SearchResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,20 +36,41 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private RecyclerView mRcvList;
-    private List<MainItem> mDataList = new ArrayList<>();
+    private List<Book> mDataList;
     private MainRcvAdapter mRcvAdapter;
     private SwipeRefreshLayout mSwipeRefresh;
+    private RequestQueue mQueue;
+
+    GsonRequest<SearchResult> gsonRequest = new GsonRequest<SearchResult>("https://api.douban.com/v2/book/search?tag=小说&fields=id,title,images,author,publisher,pubdate",SearchResult.class,
+            new Response.Listener<SearchResult>(){
+                @Override
+                public void onResponse(SearchResult searchResult){
+                    mDataList = searchResult.getBooks();
+                    Log.e("TAG", mDataList.get(0).getTitle());
+                    setRcv();
+
+            }
+            },new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e("TAG", error.getMessage(), error);
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mQueue = Volley.newRequestQueue(this);
+        //setRcv();
+        mQueue.add(gsonRequest);
+        //mRcvAdapter.notifyDataSetChanged();
         setToolbarAndNav();
         setFab();
-        setRcv();
+
         setSwipeRefreshLayout();
     }
+
 
     public void setToolbarAndNav() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -66,26 +95,19 @@ public class MainActivity extends AppCompatActivity
 //                        .setAction("Action", null).show();
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
                 startActivity(intent);
-                addOnebook();
+                //addOnebook();
             }
         });
     }
 
-    public void addOnebook() {
-        MainItem item = new MainItem("书名 " + (int) (Math.random() * 100) + "，发布者，价格等");
-        mDataList.add(0, item);
-        mRcvAdapter.notifyDataSetChanged();
-    }
+
 
     public void setRcv() {
         mRcvList = (RecyclerView) findViewById(R.id.rcv_main);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         mRcvList.setLayoutManager(layoutManager);
-        for (int i = 0; i < 40; i++) {
-            MainItem item = new MainItem("书名 " + i + "，发布者，价格等");
-            mDataList.add(0, item);
-        }
-        mRcvAdapter = new MainRcvAdapter(mDataList);
+
+        mRcvAdapter = new MainRcvAdapter(mDataList,mQueue);
         mRcvAdapter.setItemOnClickListener(new MainRcvAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -106,7 +128,8 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void run() {
                         // 停止刷新
-                        addOnebook();
+                        //addOnebook();
+                        mRcvAdapter.notifyDataSetChanged();
                         mSwipeRefresh.setRefreshing(false);
                     }
                 }, 600);
