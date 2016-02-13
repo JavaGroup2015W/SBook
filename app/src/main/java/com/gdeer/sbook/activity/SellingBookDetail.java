@@ -1,5 +1,6 @@
 package com.gdeer.sbook.activity;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,12 +12,17 @@ import android.support.v7.widget.Toolbar;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.gdeer.sbook.R;
+import com.gdeer.sbook.Tool.GsonRequest;
 import com.gdeer.sbook.adapter.SectionsPagerAdapter;
+import com.gdeer.sbook.bean.SearchResult;
 
 public class SellingBookDetail extends AppCompatActivity {
 
@@ -28,6 +34,7 @@ public class SellingBookDetail extends AppCompatActivity {
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
+
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
@@ -35,6 +42,8 @@ public class SellingBookDetail extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private Toolbar toolbar;
+    private static final String ARG_BOOK_ID = "BookId";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +55,10 @@ public class SellingBookDetail extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+        //获取Intent中带有的书籍ID
+        Intent intent = getIntent();
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(),intent.getStringExtra(ARG_BOOK_ID));
 
 
         mViewPager = (ViewPager) findViewById(R.id.container);

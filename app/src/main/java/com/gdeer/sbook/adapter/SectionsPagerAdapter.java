@@ -18,24 +18,26 @@ import com.gdeer.sbook.fragment.SellingInfoFragment;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    public SectionsPagerAdapter(FragmentManager fm) {
+    private String BookId;
+
+    public SectionsPagerAdapter(FragmentManager fm, String BookId) {
         super(fm);
+        this.BookId = BookId;
     }
 
     @Override
     public Fragment getItem(int position) {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a SellingInfoFragment (defined as a static inner class below).
-       // if (position == 1) {
-         //   return BookInfoFragment.newInstance(position + 1);
-        //} else {
-            return SellingInfoFragment.newInstance(position + 1);
-        //}
+
+        if (position == 0) {
+           return BookInfoFragment.newInstance(BookId);
+        } else {
+            return SellingInfoFragment.newInstance(BookId);
+        }
     }
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
+
         return 2;
     }
 
@@ -43,9 +45,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return "待售信息";
-            case 1:
                 return "书籍信息";
+            case 1:
+                return "待售信息";
         }
         return null;
     }

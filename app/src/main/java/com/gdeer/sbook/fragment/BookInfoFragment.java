@@ -1,47 +1,73 @@
 package com.gdeer.sbook.fragment;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
+import com.android.volley.toolbox.Volley;
 import com.gdeer.sbook.R;
-import com.gdeer.sbook.adapter.MyBookInfoRcvAdapter;
+import com.gdeer.sbook.Tool.GsonRequest;
+import com.gdeer.sbook.bean.Book;
+import com.gdeer.sbook.bean.SearchResult;
 import com.gdeer.sbook.fragment.dummy.DummyContent;
 import com.gdeer.sbook.fragment.dummy.DummyContent.DummyItem;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
+
 public class BookInfoFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public BookInfoFragment() {
+    private static final String ARG_BOOK_ID = "BookId";
+    private String ID;
+    private RequestQueue mQueue;
+    private TextView book_title,book_writer,book_pages,book_publisher,book_pubdate,book_price,book_summary,book_catalog;
+    private NetworkImageView book_pic;
+    private ImageLoader imageLoader;
+
+    //向豆瓣请求相应ID所代表的书籍的信息的GsonRequest
+    private GsonRequest<Book> getRequest(String ID){
+        GsonRequest<Book> gsonRequest = new GsonRequest<Book>("https://api.douban.com/v2/book/"+ID+"?fields=id,title,images,author,publisher,pubdate,price,summary,pages,catalog",Book.class,
+                new Response.Listener<Book>(){
+                    @Override
+                    public void onResponse(Book book){
+                        book_pic.setImageUrl(book.getImages().getLarge(),imageLoader);
+                        book_title.setText(book.getTitle());
+                        book_writer.setText(book.getAuthor().get(0));
+                        book_pages.setText(book.getPages());
+                        book_publisher.setText(book.getPublisher());
+                        book_pubdate.setText(book.getPubdate());
+                        book_price.setText(book.getPrice());
+                        book_summary.setText(book.getSummary());
+                        book_catalog.setText(book.getCatalog());
+                    }
+                },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("TAG", error.getMessage(), error);
+            }
+        });
+        return gsonRequest;
     }
 
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static BookInfoFragment newInstance(int columnCount) {
+
+
+    public static BookInfoFragment newInstance(String ID) {
         BookInfoFragment fragment = new BookInfoFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putString(ARG_BOOK_ID, ID);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,60 +76,44 @@ public class BookInfoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //获取书籍ID
         if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+           ID = getArguments().getString(ARG_BOOK_ID);
         }
+
+        //初始化请求队列
+        mQueue = Volley.newRequestQueue(getActivity());
+
+        //初始化ImageLoader，用于NetworkImageView的加载与显示
+        imageLoader = new ImageLoader(mQueue, new ImageLoader.ImageCache() {
+            @Override
+            public void putBitmap(String url, Bitmap bitmap) {}
+            @Override
+            public Bitmap getBitmap(String url) {
+                return null;
+            }
+        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_bookinfo_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_bookinfo, container, false);
+        book_pic = (NetworkImageView) view.findViewById(R.id.book_pic);
+        book_summary = (TextView) view.findViewById(R.id.book_summary);
+        book_catalog = (TextView) view.findViewById(R.id.book_catalog);
+        book_price = (TextView) view.findViewById(R.id.book_price);
+        book_pages = (TextView) view.findViewById(R.id.book_page);
+        book_pubdate = (TextView) view.findViewById(R.id.book_pubdate);
+        book_publisher = (TextView) view.findViewById(R.id.book_publisher);
+        book_title = (TextView) view.findViewById(R.id.book_title);
+        book_writer = (TextView) view.findViewById(R.id.book_writer);
 
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new MyBookInfoRcvAdapter(DummyContent.ITEMS, mListener));
-        }
+        //将请求添加到队列
+        mQueue.add(getRequest(ID));
+
         return view;
     }
 
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
-    }
 }

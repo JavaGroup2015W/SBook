@@ -36,26 +36,12 @@ import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    //private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    //private ViewPager mViewPager;
     private Toolbar toolbar;
     private MainRcvAdapter mRcvAdapter;
     private RecyclerView mRcvList;
     private List<Book> mDataList;
     private RequestQueue mQueue;
-
+    private static final String ARG_BOOK_ID = "BookId";
 
 
     private GsonRequest<SearchResult> getRequest(String content){
@@ -91,7 +77,7 @@ public class SearchActivity extends AppCompatActivity {
         mRcvList = (RecyclerView) findViewById(R.id.rcv_search);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
         mRcvList.setLayoutManager(layoutManager);
-        //setRcv();
+
 
     }
 
@@ -101,7 +87,9 @@ public class SearchActivity extends AppCompatActivity {
         mRcvAdapter.setItemOnClickListener(new MainRcvAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                String ID = mDataList.get(position).getId();
                 Intent intent = new Intent(SearchActivity.this, SellingBookDetail.class);
+                intent.putExtra(ARG_BOOK_ID,ID);
                 startActivity(intent);
             }
         });
@@ -114,7 +102,6 @@ public class SearchActivity extends AppCompatActivity {
         MenuItem searchItem = menu.findItem(R.id.search);
         searchItem.expandActionView();
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-//        searchView.setIconifiedByDefault(false);
         searchView.setIconified(false);
         searchView.setFocusable(true);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

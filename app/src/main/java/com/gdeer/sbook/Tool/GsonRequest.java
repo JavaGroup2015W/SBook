@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * Created by caisi on 2016/2/11.
+ * 自定义的GsonRequest，可以直接用Gson将获取的Json数据转化成类
  */
 public class GsonRequest<T> extends Request<T> {
 

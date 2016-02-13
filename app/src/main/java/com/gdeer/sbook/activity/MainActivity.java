@@ -40,7 +40,9 @@ public class MainActivity extends AppCompatActivity
     private MainRcvAdapter mRcvAdapter;
     private SwipeRefreshLayout mSwipeRefresh;
     private RequestQueue mQueue;
+    private static final String ARG_BOOK_ID = "BookId";
 
+    //向豆瓣请求数据的GsonRequest，暂时先设置为获取标签为“小说”的书
     GsonRequest<SearchResult> gsonRequest = new GsonRequest<SearchResult>("https://api.douban.com/v2/book/search?tag=小说&fields=id,title,images,author,publisher,pubdate",SearchResult.class,
             new Response.Listener<SearchResult>(){
                 @Override
@@ -48,8 +50,7 @@ public class MainActivity extends AppCompatActivity
                     mDataList = searchResult.getBooks();
                     Log.e("TAG", mDataList.get(0).getTitle());
                     setRcv();
-
-            }
+                    }
             },new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -62,9 +63,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mQueue = Volley.newRequestQueue(this);
-        //setRcv();
         mQueue.add(gsonRequest);
-        //mRcvAdapter.notifyDataSetChanged();
         setToolbarAndNav();
         setFab();
 
@@ -91,11 +90,8 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
                 startActivity(intent);
-                //addOnebook();
             }
         });
     }
@@ -111,7 +107,9 @@ public class MainActivity extends AppCompatActivity
         mRcvAdapter.setItemOnClickListener(new MainRcvAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                String ID = mDataList.get(position).getId();
                 Intent intent = new Intent(MainActivity.this, SellingBookDetail.class);
+                intent.putExtra(ARG_BOOK_ID,ID);
                 startActivity(intent);
             }
         });
@@ -127,8 +125,6 @@ public class MainActivity extends AppCompatActivity
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        // 停止刷新
-                        //addOnebook();
                         mRcvAdapter.notifyDataSetChanged();
                         mSwipeRefresh.setRefreshing(false);
                     }

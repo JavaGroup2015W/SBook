@@ -24,7 +24,7 @@ public class SellingInfoFragment extends Fragment {
      * The fragment argument representing the section number for this
      * fragment.
      */
-    private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String ARG_BOOK_ID = "BookId";
     private List<SellerItem> mDataList;
     private SellerRcvAdapter mAdapter;
     private RecyclerView mRcvList;
@@ -36,10 +36,10 @@ public class SellingInfoFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static SellingInfoFragment newInstance(int sectionNumber) {
+    public static SellingInfoFragment newInstance(String  BookId) {
         SellingInfoFragment fragment = new SellingInfoFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+        args.putString(ARG_BOOK_ID, BookId);
         fragment.setArguments(args);
         return fragment;
     }

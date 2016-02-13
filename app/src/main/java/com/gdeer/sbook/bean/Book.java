@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Created by caisi on 2016/2/11.
+ * 严格按照豆瓣返回的JSON数据设计
  */
 public class Book {
     private String id;
@@ -12,6 +13,10 @@ public class Book {
     private String publisher;
     private String pubdate;
     private List<String> author;
+    private String pages;
+    private String catalog;
+    private String price;
+    private String summary;
 
     public String getId() {
         return id;
@@ -21,36 +26,36 @@ public class Book {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getSummary() {
+        return summary;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
-    public Images getImages() {
-        return images;
+    public String getPrice() {
+        return price;
     }
 
-    public void setImages(Images images) {
-        this.images = images;
+    public void setPrice(String price) {
+        this.price = price;
     }
 
-    public String getPublisher() {
-        return publisher;
+    public String getCatalog() {
+        return catalog;
     }
 
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
+    public void setCatalog(String catalog) {
+        this.catalog = catalog;
     }
 
-    public String getPubdate() {
-        return pubdate;
+    public String getPages() {
+        return pages;
     }
 
-    public void setPubdate(String pubdate) {
-        this.pubdate = pubdate;
+    public void setPages(String pages) {
+        this.pages = pages;
     }
 
     public List<String> getAuthor() {
@@ -61,5 +66,35 @@ public class Book {
         this.author = author;
     }
 
+    public String getPubdate() {
+        return pubdate;
+    }
 
+    public void setPubdate(String pubdate) {
+        this.pubdate = pubdate;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public Images getImages() {
+        return images;
+    }
+
+    public void setImages(Images images) {
+        this.images = images;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 }
