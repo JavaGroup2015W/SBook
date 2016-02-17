@@ -41,7 +41,7 @@ public class SellingBookDetail extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    private Toolbar toolbar;
+    //private Toolbar toolbar;
     private static final String ARG_BOOK_ID = "BookId";
 
 
@@ -50,11 +50,11 @@ public class SellingBookDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selling_book_detail);
 
-        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        //toolbar = (Toolbar) findViewById(R.id.tool_bar);
         //toolbar.setTitle("1234");
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+       // setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //获取Intent中带有的书籍ID
         Intent intent = getIntent();
@@ -68,7 +68,7 @@ public class SellingBookDetail extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+       fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
