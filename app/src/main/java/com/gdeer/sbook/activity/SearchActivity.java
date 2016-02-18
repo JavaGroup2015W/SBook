@@ -42,17 +42,23 @@ public class SearchActivity extends AppCompatActivity {
     private List<Book> mDataList;
     private RequestQueue mQueue;
     private static final String ARG_BOOK_ID = "BookId";
+    private int offset=0;
+    private static final int LOAD_MORE = 0;//上拉加载更多的模式
+    private static final int LOAD_NEW = 1;//搜索时的模式
+    int lastVisibleItem;
+    String query_saved;
+    LinearLayoutManager layoutManager;
 
-
-    private GsonRequest<SearchResult> getRequest(String content){
-        GsonRequest<SearchResult> gsonRequest = new GsonRequest<SearchResult>("https://api.douban.com/v2/book/search?q="+content+"&fields=id,title,images,author,publisher,pubdate",SearchResult.class,
+    private GsonRequest<SearchResult> getRequest(String content,int LOAD_MODE){
+        if(LOAD_MODE == LOAD_NEW){//搜索，得到新结果
+            offset = 0;
+            GsonRequest<SearchResult> gsonRequest = new GsonRequest<SearchResult>("https://api.douban.com/v2/book/search?q="+content+"&fields=id,title,images,author,publisher,pubdate",SearchResult.class,
                 new Response.Listener<SearchResult>(){
                     @Override
                     public void onResponse(SearchResult searchResult){
                         mDataList = searchResult.getBooks();
-                        Log.e("TAG", mDataList.get(0).getTitle());
+                        //Log.e("TAG", mDataList.get(0).getTitle());
                         setRcv();
-
                     }
                 },new Response.ErrorListener() {
             @Override
@@ -60,7 +66,28 @@ public class SearchActivity extends AppCompatActivity {
                 Log.e("TAG", error.getMessage(), error);
             }
         });
-        return gsonRequest;
+            return gsonRequest;}
+        else if(LOAD_MODE == LOAD_MORE){//加载更多
+            offset += 20;
+            GsonRequest<SearchResult> gsonRequest = new GsonRequest<SearchResult>("https://api.douban.com/v2/book/search?q="+content+"&fields=id,title,images,author,publisher,pubdate&start="+offset,SearchResult.class,
+                    new Response.Listener<SearchResult>(){
+                        @Override
+                        public void onResponse(SearchResult searchResult){
+                            //mDataList = searchResult.getBooks();
+                            mDataList.addAll(searchResult.getBooks());
+                            mRcvAdapter.notifyDataSetChanged();
+                            //Log.e("TAG", mDataList.get(0).getTitle());
+                            //setRcv();
+                        }
+                    },new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("TAG", error.getMessage(), error);
+                }
+            });
+            return gsonRequest;
+        }
+        return null;
     }
 
     @Override
@@ -75,7 +102,7 @@ public class SearchActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         mQueue = Volley.newRequestQueue(this);
         mRcvList = (RecyclerView) findViewById(R.id.rcv_search);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SearchActivity.this);
+        layoutManager = new LinearLayoutManager(SearchActivity.this);
         mRcvList.setLayoutManager(layoutManager);
 
 
@@ -89,11 +116,26 @@ public class SearchActivity extends AppCompatActivity {
             public void onItemClick(View view, int position) {
                 String ID = mDataList.get(position).getId();
                 Intent intent = new Intent(SearchActivity.this, SellingBookDetail.class);
-                intent.putExtra(ARG_BOOK_ID,ID);
+                intent.putExtra(ARG_BOOK_ID, ID);
                 startActivity(intent);
             }
         });
         mRcvList.setAdapter(mRcvAdapter);
+        mRcvList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem + 1 == mRcvAdapter.getItemCount() && mRcvAdapter.getItemCount() != 1) {
+                    mQueue.add(getRequest(query_saved, LOAD_MORE));
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+            }
+        });
     }
 
     @Override
@@ -107,7 +149,8 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mQueue.add(getRequest(query));
+                query_saved = query;
+                mQueue.add(getRequest(query,LOAD_NEW));
                 return true;
             }
 

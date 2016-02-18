@@ -43,9 +43,9 @@ public class BookInfoFragment extends Fragment {
                 new Response.Listener<Book>(){
                     @Override
                     public void onResponse(Book book){
-                        book_pic.setImageUrl(book.getImages().getLarge(),imageLoader);
+                        book_pic.setImageUrl(book.getImages().getLarge(), imageLoader);
                         book_title.setText(book.getTitle());
-                        book_writer.setText(book.getAuthor().get(0));
+                        if(book.getAuthor().size()>0){book_writer.setText(book.getAuthor().get(0));}//豆瓣的数据有时会空，要处理，不然会崩溃，其它数据也有可能是空，先处理作者，之后再处理其它
                         book_pages.setText(book.getPages());
                         book_publisher.setText(book.getPublisher());
                         book_pubdate.setText(book.getPubdate());
